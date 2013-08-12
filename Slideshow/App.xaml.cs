@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.IO;
+using System.Windows;
 
 namespace Slideshow
 {
-    class Media
+    /// <summary>
+    /// Interaction logic for App.xaml
+    /// </summary>
+    public partial class App : Application
     {
-        public string PrimaryText { get; set; }
-        public string SecondaryText { get; set; }
-        public FileInfo File { get; set; }
     }
 }
