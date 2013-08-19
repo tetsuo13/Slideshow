@@ -14,15 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-// https://github.com/waveface/ExifLibrary-for-NET
-
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -35,9 +32,21 @@ namespace Slideshow
     /// </summary>
     public partial class MainWindow : Window
     {
+        /// <summary>
+        /// Number of seconds to show each image.
+        /// </summary>
         private int imageDurationSeconds = 10;
+
+        /// <summary>
+        /// Number of seconds to increment/decrement image duration at a time.
+        /// </summary>
         private int imageDurationOffset = 4;
+
+        /// <summary>
+        /// Collection of images that were found and their properties.
+        /// </summary>
         private List<Media> images = new List<Media>();
+
         private int currentImageIndex = 0;
         private DispatcherTimer imageTimer = new DispatcherTimer();
 
@@ -50,11 +59,18 @@ namespace Slideshow
 
             LoadImages();
 
-            imageTimer.Tick += new EventHandler(timer_Tick);
-            imageTimer.Interval = new TimeSpan(0, 0, 1);
-            imageTimer.Start();
+            if (images.Count > 0)
+            {
+                imageTimer.Tick += new EventHandler(timer_Tick);
+                imageTimer.Interval = new TimeSpan(0, 0, 1);
+                imageTimer.Start();
+            }
         }
 
+        /// <summary>
+        /// Flash a notification message for a few seconds.
+        /// </summary>
+        /// <param name="notification">Message to display.</param>
         private void Toast(string notification)
         {
             AppInfo.Content = notification;
@@ -75,18 +91,26 @@ namespace Slideshow
         /// </summary>
         /// <remarks>
         /// Development machine registered the plus and minus keys as OEM
-        /// keys. This was not using the number pad.
+        /// keys.
         /// </remarks>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
+            if (e.Key == Key.Escape)
+            {
+                this.Close();
+                return;
+            }
+
+            if (images.Count == 0)
+            {
+                return;
+            }
+
             switch (e.Key)
             {
-                case Key.Escape:
-                    this.Close();
-                    break;
-
+                // Increment image duration.
                 case Key.Add:
                 // Break intentionally omitted.
                 case Key.OemPlus:
@@ -95,6 +119,7 @@ namespace Slideshow
                     Toast(String.Format("Increased duration to {0} seconds", imageDurationSeconds));
                     break;
 
+                // Decrement image duration.
                 case Key.Subtract:
                 // Break intentionally omitted.
                 case Key.OemMinus:
@@ -108,12 +133,14 @@ namespace Slideshow
                     Toast(String.Format("Decreased duration to {0} seconds", imageDurationSeconds));
                     break;
 
+                // Show next image immediately.
                 case Key.Right:
                     ChangeImageIndex(1);
                     DisplayImage(false);
                     imageTimer.Interval = new TimeSpan(0, 0, imageDurationSeconds);
                     break;
 
+                // Show previous image immediately.
                 case Key.Left:
                     ChangeImageIndex(-1);
                     DisplayImage(false);
@@ -147,18 +174,17 @@ namespace Slideshow
                 ReadExifInfo(imageStream);
             }
 
-            List<string> info = new List<string>
-            {
-                images[currentImageIndex].PrimaryText,
-                images[currentImageIndex].SecondaryText
-            };
-
-            this.ImageInfo.Content = String.Join("\n", info);
+            DisplayImageInfo();
 
             if (advanceImageIndex)
             {
                 ChangeImageIndex(1);
             }
+        }
+
+        private void DisplayImageInfo()
+        {
+            this.ImageInfo.Content = images[currentImageIndex].InfoText();
         }
 
         private void ChangeImageIndex(int offset)
@@ -181,13 +207,12 @@ namespace Slideshow
             {
                 imageTimer.Interval = new TimeSpan(0, 0, imageDurationSeconds);
             }
-
             DisplayImage();
         }
 
         private void ReadExifInfo(FileStream imageStream)
         {
-            if (images[currentImageIndex].PrimaryText != null && images[currentImageIndex].SecondaryText != null)
+            if (!String.IsNullOrEmpty(images[currentImageIndex].InfoText()))
             {
                 return;
             }
@@ -195,20 +220,7 @@ namespace Slideshow
             try
             {
                 ExifReader exifReader = new ExifReader(imageStream);
-
-                string exifValue;
-
-                if (images[currentImageIndex].PrimaryText == null)
-                {
-                    exifReader.GetTagValue<string>(ExifTags.Artist, out exifValue);
-                    images[currentImageIndex].PrimaryText = exifValue;
-                }
-
-                if (images[currentImageIndex].SecondaryText == null)
-                {
-                    exifReader.GetTagValue<string>(ExifTags.ImageDescription, out exifValue);
-                    images[currentImageIndex].SecondaryText = exifValue;
-                }
+                images[currentImageIndex].Info.ForEach(x => x.SetValue(exifReader));
             }
             catch (Exception)
             {

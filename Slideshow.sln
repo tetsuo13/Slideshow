@@ -3,6 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Slideshow", "Slideshow\Slideshow.csproj", "{B88020AB-258D-454A-AB11-CBAB7570E4EF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7111A84D-9F5B-46E3-9705-DB177BDDABBC}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageViewer", "ImageViewer\ImageViewer.csproj", "{29FC087A-D5BF-4E0A-90B9-A437EF69718E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -13,6 +21,10 @@ Global
 		{B88020AB-258D-454A-AB11-CBAB7570E4EF}.Debug|x86.Build.0 = Debug|x86
 		{B88020AB-258D-454A-AB11-CBAB7570E4EF}.Release|x86.ActiveCfg = Release|x86
 		{B88020AB-258D-454A-AB11-CBAB7570E4EF}.Release|x86.Build.0 = Release|x86
+		{29FC087A-D5BF-4E0A-90B9-A437EF69718E}.Debug|x86.ActiveCfg = Debug|x86
+		{29FC087A-D5BF-4E0A-90B9-A437EF69718E}.Debug|x86.Build.0 = Debug|x86
+		{29FC087A-D5BF-4E0A-90B9-A437EF69718E}.Release|x86.ActiveCfg = Release|x86
+		{29FC087A-D5BF-4E0A-90B9-A437EF69718E}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

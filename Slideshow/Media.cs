@@ -14,14 +14,41 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using ExifLib;
 
 namespace Slideshow
 {
     class Media
     {
-        public string PrimaryText { get; set; }
-        public string SecondaryText { get; set; }
         public FileInfo File { get; set; }
+
+        /// <summary>
+        /// Collection of EXIF tags that will comprise the text info. Order matters.
+        /// </summary>
+        public List<MediaInfo> Info { get; private set; }
+
+        public Media()
+        {
+            Info = new List<MediaInfo>()
+            {
+                new MediaInfo(ExifTags.Artist),
+                new MediaInfo(ExifTags.ImageDescription)
+            };
+        }
+
+        /// <summary>
+        /// Concatenate all concerned EXIF tags each on a line.
+        /// </summary>
+        /// <returns></returns>
+        public string InfoText()
+        {
+            return String.Join("\n", Info.Select(x => x.TagValue)
+                .Where(x => !String.IsNullOrEmpty(x))
+                .ToArray());
+        }
     }
 }
