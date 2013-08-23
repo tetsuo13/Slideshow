@@ -67,4 +67,4 @@ To view existing issues please visit
 [https://github.com/tetsuo13/Slideshow/issues](https://github.com/tetsuo13/Slideshow/issues)
 
 If all else fails please drop the main developer an email at
-[contact@andreinicholson.com](contact@andreinicholson.com)
+[contact@andreinicholson.com](mailto:contact@andreinicholson.com)
