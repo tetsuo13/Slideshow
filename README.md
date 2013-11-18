@@ -22,7 +22,7 @@ A Windows XP/Vista/7/8 machine with a minimum of .NET Framework 4.
 ## Setup ##
 
 Download the latest version of Slideshow from the
-[releases page](https://github.com/tetsuo13/KeePassToRdp/releases). Save the
+[releases page](https://github.com/tetsuo13/Slideshow/releases). Save the
 file in the same folder as the images you wish to use. From here you can start
 Slideshow and it will simply display all images it finds (JPG or JPEG).
 
