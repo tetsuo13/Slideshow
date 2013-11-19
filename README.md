@@ -33,8 +33,8 @@ up the properties of an image).
 
 Currently, the only tags that are used are:
 
-* Title
 * Authors
+* Title
 
 When one or both of these tags are populated, they are shown at the
 bottom-right of the screen with the image. The order shown above is the same
