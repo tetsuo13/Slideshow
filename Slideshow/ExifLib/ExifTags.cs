@@ -7,7 +7,7 @@ namespace ExifLib
     /// </summary>
     public enum ExifTags : ushort
     {
-        #region IFD0 items
+        // IFD0 items
         ImageWidth = 0x100,
         ImageLength = 0x101,
         BitsPerSample = 0x102,
@@ -38,9 +38,8 @@ namespace ExifLib
         YCbCrPositioning = 0x213,
         ReferenceBlackWhite = 0x214,
         Copyright = 0x8298,
-        #endregion
 
-        #region SubIFD items
+        // SubIFD items
         ExposureTime = 0x829A,
         FNumber = 0x829D,
         ExposureProgram = 0x8822,
@@ -97,9 +96,8 @@ namespace ExifLib
         DeviceSettingDescription = 0xA40B,
         SubjectDistanceRange = 0xA40C,
         ImageUniqueID = 0xA420,
-        #endregion
 
-        #region GPS subifd items
+        // GPS subifd items
         GPSVersionID = 0x0,
         GPSLatitudeRef = 0x1,
         GPSLatitude = 0x2,
@@ -130,16 +128,6 @@ namespace ExifLib
         GPSProcessingMethod = 0x1B,
         GPSAreaInformation = 0x1C,
         GPSDateStamp = 0x1D,
-        GPSDifferential = 0x1E,
-        #endregion
-
-        // Does not work.
-        #region Windows
-        XPTitle = 0x9C9B,
-        XPComment = 0x9C9C,
-        XPAuthor = 0x9C9D,
-        XPKeywords = 0x9C9E,
-        XPSubject = 0x9C9F
-        #endregion
+        GPSDifferential = 0x1E
     }
 }

@@ -68,3 +68,13 @@ To view existing issues please visit
 
 If all else fails please drop the main developer an email at
 [contact@andreinicholson.com](mailto:contact@andreinicholson.com)
+
+## Development Notes ##
+
+Project embeds
+(ExifLib - A Fast Exif Data Extractor for .NET 2.0+)[http://www.codeproject.com/Articles/36342/ExifLib-A-Fast-Exif-Data-Extractor-for-NET-2-0]
+by (Simon McKenzie)[http://www.codeproject.com/Members/SimonMcKenzie]
+for all EXIF extractions.
+Embedding the source within the project over using the
+(NuGet)[https://www.nuget.org/packages/ExifLib] package was chosen to keep
+the final binary distribution down to one file.

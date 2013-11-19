@@ -190,12 +190,10 @@ namespace ExifLib
         }
 
         /// <summary>
-        /// Converts 8 bytes to an unsigned rational using the current byte aligns.
+        /// Converts 8 bytes to the numerator and denominator
+        /// components of an unsigned rational using the current byte aligns
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        /// <seealso cref="ToRational"/>
-        private double ToURational(byte[] data)
+        private uint[] ToURationalFraction(byte[] data)
         {
             var numeratorData = new byte[4];
             var denominatorData = new byte[4];
@@ -206,19 +204,30 @@ namespace ExifLib
             uint numerator = ToUint(numeratorData);
             uint denominator = ToUint(denominatorData);
 
-            return numerator / (double)denominator;
+            return new[] { numerator, denominator };
+        }
+
+
+        /// <summary>
+        /// Converts 8 bytes to an unsigned rational using the current byte aligns
+        /// </summary>
+        /// <seealso cref="ToRational"/>
+        private double ToURational(byte[] data)
+        {
+            var fraction = ToURationalFraction(data);
+
+            return fraction[0] / (double)fraction[1];
         }
 
         /// <summary>
-        /// Converts 8 bytes to a signed rational using the current byte aligns.
+        /// Converts 8 bytes to the numerator and denominator
+        /// components of an unsigned rational using the current byte aligns
         /// </summary>
         /// <remarks>
         /// A TIFF rational contains 2 4-byte integers, the first of which is
         /// the numerator, and the second of which is the denominator.
         /// </remarks>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        private double ToRational(byte[] data)
+        private int[] ToRationalFraction(byte[] data)
         {
             var numeratorData = new byte[4];
             var denominatorData = new byte[4];
@@ -229,13 +238,23 @@ namespace ExifLib
             int numerator = ToInt(numeratorData);
             int denominator = ToInt(denominatorData);
 
-            return numerator / (double)denominator;
+            return new[] { numerator, denominator };
+        }
+
+        /// <summary>
+        /// Converts 8 bytes to a signed rational using the current byte aligns.
+        /// </summary>
+        /// <seealso cref="ToRationalFraction"/>
+        private double ToRational(byte[] data)
+        {
+            var fraction = ToRationalFraction(data);
+
+            return fraction[0] / (double)fraction[1];
         }
 
         /// <summary>
         /// Converts 4 bytes to a uint using the current byte aligns
         /// </summary>
-        /// <returns></returns>
         private uint ToUint(byte[] data)
         {
             if (isLittleEndian != BitConverter.IsLittleEndian)
@@ -247,7 +266,6 @@ namespace ExifLib
         /// <summary>
         /// Converts 4 bytes to an int using the current byte aligns
         /// </summary>
-        /// <returns></returns>
         private int ToInt(byte[] data)
         {
             if (isLittleEndian != BitConverter.IsLittleEndian)
@@ -504,7 +522,14 @@ namespace ExifLib
                 case 5:
                     // unsigned rational
                     if (numberOfComponents == 1)
-                        result = (T)(object)ToURational(tagData);
+                    {
+                        // Special case - sometimes it's useful to retrieve the numerator and
+                        // denominator in their raw format
+                        if (typeof(T).IsArray)
+                            result = (T)(object)ToURationalFraction(tagData);
+                        else
+                            result = (T)(object)ToURational(tagData);
+                    }
                     else
                         result = (T)(object)GetArray(tagData, fieldLength, ToURational);
                     return true;
@@ -539,7 +564,14 @@ namespace ExifLib
                 case 10:
                     // signed rational
                     if (numberOfComponents == 1)
-                        result = (T)(object)ToRational(tagData);
+                    {
+                        // Special case - sometimes it's useful to retrieve the numerator and
+                        // denominator in their raw format
+                        if (typeof(T).IsArray)
+                            result = (T)(object)ToRationalFraction(tagData);
+                        else
+                            result = (T)(object)ToRational(tagData);
+                    }
                     else
                         result = (T)(object)GetArray(tagData, fieldLength, ToRational);
                     return true;
@@ -717,8 +749,16 @@ namespace ExifLib
             var imageBytes = new byte[length];
             _stream.Read(imageBytes, 0, (int)length);
 
-            // A valid JPEG stream ends with 0xFFD9
-            if (imageBytes.Length < 2 || imageBytes[length - 1] != 0xD9 || imageBytes[length - 2] != 0xFF)
+            // A valid JPEG stream ends with 0xFFD9. The stream may be padded at the end with multiple 0xFF or 0x00 bytes.
+            int jpegStreamEnd = (int)length - 1;
+            for (; jpegStreamEnd > 0; jpegStreamEnd--)
+            {
+                var lastByte = imageBytes[jpegStreamEnd];
+                if (lastByte != 0xFF && lastByte != 0x00)
+                    break;
+            }
+
+            if (jpegStreamEnd <= 0 || imageBytes[jpegStreamEnd] != 0xD9 || imageBytes[jpegStreamEnd - 1] != 0xFF)
                 return null;
 
             return imageBytes;

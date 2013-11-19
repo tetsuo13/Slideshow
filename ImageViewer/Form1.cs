@@ -49,9 +49,10 @@ namespace ImageViewer
             {
                 reader = new ExifReader(fileName);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 // Probably no tags to display.
+                listBox1.Items.Add(String.Format("Error reading file: {0}", e.Message));
                 return;
             }
 
