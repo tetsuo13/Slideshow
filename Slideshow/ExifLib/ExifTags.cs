@@ -7,7 +7,7 @@ namespace ExifLib
     /// </summary>
     public enum ExifTags : ushort
     {
-        // IFD0 items
+        // primary tags
         ImageWidth = 0x100,
         ImageLength = 0x101,
         BitsPerSample = 0x102,
@@ -39,7 +39,7 @@ namespace ExifLib
         ReferenceBlackWhite = 0x214,
         Copyright = 0x8298,
 
-        // SubIFD items
+        // EXIF tags
         ExposureTime = 0x829A,
         FNumber = 0x829D,
         ExposureProgram = 0x8822,
@@ -97,7 +97,7 @@ namespace ExifLib
         SubjectDistanceRange = 0xA40C,
         ImageUniqueID = 0xA420,
 
-        // GPS subifd items
+        // GPS tags
         GPSVersionID = 0x0,
         GPSLatitudeRef = 0x1,
         GPSLatitude = 0x2,
