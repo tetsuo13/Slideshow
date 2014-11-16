@@ -108,15 +108,29 @@ namespace ExifLib
 #else
                 _reader = new BinaryReader(_stream);
 #endif
-                // Make sure the file's a JPEG.
+                // Make sure the file's a JPEG. If the file length is less than 2 bytes, an EndOfStreamException will be thrown.
                 if (ReadUShort() != 0xFFD8)
                     throw new ExifLibException("File is not a valid JPEG");
 
                 // Scan to the start of the Exif content
-                ReadToExifStart();
+                try
+                {
+                    ReadToExifStart();
+                }
+                catch (Exception ex)
+                {
+                    throw new ExifLibException("Unable to locate EXIF content", ex);
+                }
 
                 // Create an index of all Exif tags found within the document
-                CreateTagIndex();
+                try
+                {
+                    CreateTagIndex();
+                }
+                catch (Exception ex)
+                {
+                    throw new ExifLibException("Error indexing EXIF tags", ex);
+                }
             }
             catch
             {
@@ -215,7 +229,13 @@ namespace ExifLib
 
         private byte[] ReadBytes(int byteCount)
         {
-            return _reader.ReadBytes(byteCount);
+            var bytes = _reader.ReadBytes(byteCount);
+
+            // ReadBytes may return less than the bytes requested if the end of the stream is reached
+            if (bytes.Length != byteCount)
+                throw new EndOfStreamException();
+
+            return bytes;
         }
 
         /// <summary>
