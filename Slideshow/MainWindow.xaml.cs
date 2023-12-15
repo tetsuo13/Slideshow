@@ -123,12 +123,18 @@ namespace Slideshow
                 case Key.Subtract:
                 // Break intentionally omitted.
                 case Key.OemMinus:
-                    if (imageDurationSeconds - imageDurationOffset < 1)
+                    if (imageDurationSeconds <= 1)
                     {
                         break;
                     }
-
-                    imageDurationSeconds -= imageDurationOffset;
+                    if (imageDurationSeconds >= (imageDurationOffset * 2))
+                    {
+                        imageDurationSeconds -= imageDurationOffset;
+                    }
+                    else
+                    {
+                        imageDurationSeconds /= 2;
+                    }
                     imageTimer.Interval = new TimeSpan(0, 0, imageDurationSeconds);
                     Toast(String.Format("Decreased duration to {0} seconds", imageDurationSeconds));
                     break;
@@ -233,7 +239,15 @@ namespace Slideshow
         private void LoadImages()
         {
             string[] validExtensions = new string[] { ".jpg", ".jpeg" };
-            DirectoryInfo directory = new DirectoryInfo(GetAssemblyDirectory());
+            DirectoryInfo directory;
+            if (Slideshow.App.dragNdropArg.Length > 0)
+            {
+                directory = new DirectoryInfo(GetSelectedDirectory(Slideshow.App.dragNdropArg));
+            }
+            else
+            {
+                directory = new DirectoryInfo(GetAssemblyDirectory());
+            }
             IEnumerable<FileInfo> files = from f in directory.EnumerateFiles()
                                           where validExtensions.Any(f.Extension.ToLower().Contains)
                                           select f;
@@ -252,6 +266,17 @@ namespace Slideshow
             UriBuilder uri = new UriBuilder(codeBase);
             string assemblyPath = Uri.UnescapeDataString(uri.Path);
             return Path.GetDirectoryName(assemblyPath);
+        }
+
+        private string GetSelectedDirectory(string arg)
+        {
+            UriBuilder uri = new UriBuilder(arg);
+            string argPath = Uri.UnescapeDataString(uri.Path);
+            if (Directory.Exists(argPath))
+            {
+                return argPath;
+            }
+            return Path.GetDirectoryName(argPath);
         }
     }
 }
