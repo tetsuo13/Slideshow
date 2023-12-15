@@ -17,7 +17,7 @@ anywhere without having to install anything.
 
 ## Requirements ##
 
-A Windows XP/Vista/7/8 machine with a minimum of .NET Framework 4.
+A Windows XP/Vista/7/8 machine with a minimum of .NET Framework 4.8.
 
 ## Setup ##
 
@@ -29,7 +29,7 @@ Slideshow and it will simply display all images it finds (JPG or JPEG).
 If you want to show any text along with the images you'll need to edit the
 EXIF information for each image. There are dozens of applications freely
 available online that will help but Windows also provides a way when bringing
-up the properties of an image).
+up the properties of an image.
 
 Currently, the only tags that are used are:
 
