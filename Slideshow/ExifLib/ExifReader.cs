@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -53,6 +55,31 @@ namespace ExifLib
         /// The position in the filestream at which the TIFF header starts
         /// </summary>
         private long _tiffHeaderStart;
+
+        private static readonly Dictionary<ushort, IFD> _ifdLookup;
+
+        static ExifReader()
+        {
+            // Prepare the tag-IFD lookup table
+            _ifdLookup = new Dictionary<ushort, IFD>();
+
+            var tagType = typeof(ExifTags);
+
+#if !NETFX_CORE
+            var tagFields = tagType.GetFields(BindingFlags.Static | BindingFlags.Public);
+#else
+            var tagFields = System.Linq.Enumerable.Where(tagType.GetRuntimeFields(), x => (x.Attributes | FieldAttributes.Static) == FieldAttributes.Static);
+#endif
+            foreach (var tag in tagFields)
+            {
+#if !NETFX_CORE
+                var ifdAttribute = (IFDAttribute)tag.GetCustomAttributes(typeof(IFDAttribute), false)[0];
+#else
+                var ifdAttribute = (IFDAttribute)tag.GetCustomAttribute(typeof(IFDAttribute), false);
+#endif
+                _ifdLookup[(ushort)tag.GetValue(null)] = ifdAttribute.IFD;
+            }
+        }
 
         // Windows 8 store apps don't support the FileStream class
 #if !NETFX_CORE
@@ -543,16 +570,40 @@ namespace ExifLib
 
         public bool GetTagValue<T>(ushort tagID, out T result)
         {
-            // Select the correct catalogue based on the tag value. Note that the thumbnail catalogue (ifd1)
-            // is only used for thumbnails, never for tag retrieval
+            IFD ifd;
+            if (_ifdLookup.TryGetValue(tagID, out ifd))
+                return GetTagValue(tagID, ifd, out result);
 
+            // It's an unknown tag. Try all IFDs. Note that the thumbnail catalogue (IFD1)
+            // is only used for thumbnails, never for tag retrieval
+            return
+                GetTagValue(_ifd0PrimaryCatalogue, tagID, out result) ||
+                GetTagValue(_ifdExifCatalogue, tagID, out result) ||
+                GetTagValue(_ifdGPSCatalogue, tagID, out result);
+        }
+
+        /// <summary>
+        ///  Retrieves a numbered tag from a specific IFD
+        /// </summary>
+        /// <remarks>Useful for cases where a new or non-standard tag isn't present in the <see cref="ExifTags"/> enumeration</remarks>
+        public bool GetTagValue<T>(ushort tagID, IFD ifd, out T result)
+        {
             Dictionary<ushort, long> catalogue;
-            if (tagID > (int)ExifTags.Copyright)
-                catalogue = _ifdExifCatalogue;
-            else if (tagID > (int)ExifTags.GPSDifferential)
-                catalogue = _ifd0PrimaryCatalogue;
-            else
-                catalogue = _ifdGPSCatalogue;
+
+            switch (ifd)
+            {
+                case IFD.IFD0:
+                    catalogue = _ifd0PrimaryCatalogue;
+                    break;
+                case IFD.EXIF:
+                    catalogue = _ifdExifCatalogue;
+                    break;
+                case IFD.GPS:
+                    catalogue = _ifdGPSCatalogue;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
             return GetTagValue(catalogue, tagID, out result);
         }
@@ -590,7 +641,17 @@ namespace ExifLib
                     if (numberOfComponents == 1)
                         result = (T)(object)tagData[0];
                     else
-                        result = (T)(object)tagData;
+                    {
+                        // If a string is requested from a byte array, it will be unicode encoded.
+                        if (typeof(T) == typeof(string))
+                        {
+                            var decoded = Encoding.Unicode.GetString(tagData, 0, tagData.Length);
+                            // Unicode strings are null-terminated
+                            result = (T)(object)decoded.TrimEnd('\0');
+                        }
+                        else
+                            result = (T)(object)tagData;
+                    }
                     return true;
                 case 2:
                     // ascii string

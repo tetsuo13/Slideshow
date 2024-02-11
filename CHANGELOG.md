@@ -2,7 +2,7 @@
 
 ## 1.1.0 (Unreleased)
 
-- Bump ExifLib to 1.6.3
+- Bump ExifLib to 1.7
 - Added support to drag-and-drop images to display ([#1](https://github.com/tetsuo13/Slideshow/pull/1))
 - Require minimum of .NET Framework 4.8
 
