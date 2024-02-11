@@ -24,22 +24,22 @@ namespace Slideshow
         /// <summary>
         /// Number of seconds to increment/decrement image duration at a time.
         /// </summary>
-        private int imageDurationOffset = 4;
+        private readonly int imageDurationOffset = 4;
 
         /// <summary>
         /// Collection of images that were found and their properties.
         /// </summary>
-        private List<Media> images = new List<Media>();
+        private readonly List<Media> images = new List<Media>();
 
         private int currentImageIndex = 0;
-        private DispatcherTimer imageTimer = new DispatcherTimer();
+        private readonly DispatcherTimer imageTimer = new DispatcherTimer();
 
         public MainWindow()
         {
             InitializeComponent();
 
-            this.Cursor = Cursors.None;
-            this.KeyDown += new KeyEventHandler(MainWindow_KeyDown);
+            Cursor = Cursors.None;
+            KeyDown += new KeyEventHandler(MainWindow_KeyDown);
 
             LoadImages();
 
@@ -60,8 +60,10 @@ namespace Slideshow
             AppInfo.Content = notification;
             AppInfo.Visibility = Visibility.Visible;
 
-            DispatcherTimer toastTimer = new DispatcherTimer();
-            toastTimer.Interval = new TimeSpan(0, 0, 2);
+            var toastTimer = new DispatcherTimer
+            {
+                Interval = new TimeSpan(0, 0, 2)
+            };
             toastTimer.Tick += (EventHandler)delegate(object snd, EventArgs ea)
             {
                 AppInfo.Visibility = Visibility.Collapsed;
@@ -83,7 +85,7 @@ namespace Slideshow
         {
             if (e.Key == Key.Escape)
             {
-                this.Close();
+                Close();
                 return;
             }
 
@@ -96,7 +98,6 @@ namespace Slideshow
             {
                 // Increment image duration.
                 case Key.Add:
-                // Break intentionally omitted.
                 case Key.OemPlus:
                     imageDurationSeconds += imageDurationOffset;
                     imageTimer.Interval = new TimeSpan(0, 0, imageDurationSeconds);
@@ -105,7 +106,6 @@ namespace Slideshow
 
                 // Decrement image duration.
                 case Key.Subtract:
-                // Break intentionally omitted.
                 case Key.OemMinus:
                     if (imageDurationSeconds <= 1)
                     {
@@ -147,11 +147,11 @@ namespace Slideshow
             using (FileStream imageStream = new FileStream(images[currentImageIndex].File.FullName, FileMode.Open,
                 FileAccess.Read, FileShare.ReadWrite))
             {
-                MemoryStream memoryStream = new MemoryStream();
+                var memoryStream = new MemoryStream();
                 memoryStream.SetLength(imageStream.Length);
                 imageStream.Read(memoryStream.GetBuffer(), 0, (int)imageStream.Length);
 
-                BitmapImage bitmapImage = new BitmapImage();
+                var bitmapImage = new BitmapImage();
                 bitmapImage.BeginInit();
                 bitmapImage.StreamSource = memoryStream;
                 bitmapImage.EndInit();
@@ -174,7 +174,7 @@ namespace Slideshow
 
         private void DisplayImageInfo()
         {
-            this.ImageInfo.Content = images[currentImageIndex].InfoText();
+            ImageInfo.Content = images[currentImageIndex].InfoText();
         }
 
         private void ChangeImageIndex(int offset)
@@ -202,7 +202,7 @@ namespace Slideshow
 
         private void ReadExifInfo(FileStream imageStream)
         {
-            if (!String.IsNullOrEmpty(images[currentImageIndex].InfoText()))
+            if (!string.IsNullOrEmpty(images[currentImageIndex].InfoText()))
             {
                 return;
             }
@@ -214,6 +214,7 @@ namespace Slideshow
             }
             catch (Exception)
             {
+                // No info will be displayed.
             }
         }
 
@@ -224,9 +225,9 @@ namespace Slideshow
         {
             string[] validExtensions = new string[] { ".jpg", ".jpeg" };
             DirectoryInfo directory;
-            if (Slideshow.App.dragNdropArg.Length > 0)
+            if (App.dragNdropArg.Length > 0)
             {
-                directory = new DirectoryInfo(GetSelectedDirectory(Slideshow.App.dragNdropArg));
+                directory = new DirectoryInfo(GetSelectedDirectory(App.dragNdropArg));
             }
             else
             {
@@ -247,14 +248,14 @@ namespace Slideshow
         private string GetAssemblyDirectory()
         {
             string codeBase = Assembly.GetExecutingAssembly().CodeBase;
-            UriBuilder uri = new UriBuilder(codeBase);
+            var uri = new UriBuilder(codeBase);
             string assemblyPath = Uri.UnescapeDataString(uri.Path);
             return Path.GetDirectoryName(assemblyPath);
         }
 
         private string GetSelectedDirectory(string arg)
         {
-            UriBuilder uri = new UriBuilder(arg);
+            var uri = new UriBuilder(arg);
             string argPath = Uri.UnescapeDataString(uri.Path);
             if (Directory.Exists(argPath))
             {

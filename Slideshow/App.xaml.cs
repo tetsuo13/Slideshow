@@ -15,7 +15,7 @@ namespace Slideshow
             }
             else
             {
-                dragNdropArg = "";
+                dragNdropArg = string.Empty;
             }
         }
 

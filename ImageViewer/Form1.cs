@@ -1,7 +1,7 @@
-﻿using System;
+﻿using ExifLib;
+using System;
 using System.IO;
 using System.Windows.Forms;
-using ExifLib;
 
 namespace ImageViewer
 {
@@ -36,7 +36,7 @@ namespace ImageViewer
             catch (Exception e)
             {
                 // Probably no tags to display.
-                listBox1.Items.Add(String.Format("Error reading file: {0}", e.Message));
+                listBox1.Items.Add(string.Format("Error reading file: {0}", e.Message));
                 return;
             }
 
@@ -44,12 +44,11 @@ namespace ImageViewer
             {
                 try
                 {
-                    string exifValue;
-                    reader.GetTagValue<string>(tag, out exifValue);
+                    reader.GetTagValue<string>(tag, out string exifValue);
 
-                    if (!String.IsNullOrEmpty(exifValue))
+                    if (!string.IsNullOrEmpty(exifValue))
                     {
-                        string item = String.Format("{0}: {1}",
+                        var item = string.Format("{0}: {1}",
                             Enum.GetName(typeof(ExifTags), tag), exifValue);
                         listBox1.Items.Add(item);
                     }

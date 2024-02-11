@@ -1,5 +1,4 @@
 ﻿using ExifLib;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -30,8 +29,8 @@ namespace Slideshow
         /// <returns></returns>
         public string InfoText()
         {
-            return String.Join("\n", Info.Select(x => x.TagValue)
-                .Where(x => !String.IsNullOrEmpty(x))
+            return string.Join("\n", Info.Select(x => x.TagValue)
+                .Where(x => !string.IsNullOrEmpty(x))
                 .ToArray());
         }
     }

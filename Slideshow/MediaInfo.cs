@@ -14,8 +14,7 @@ namespace Slideshow
 
         public void SetValue(ExifReader reader)
         {
-            string tmp;
-            reader.GetTagValue<string>(Tag, out tmp);
+            reader.GetTagValue(Tag, out string tmp);
             TagValue = tmp;
         }
     }
