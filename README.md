@@ -8,7 +8,7 @@ The work done is also transferable to other computers: edit the tags of the imag
 
 ## Requirements
 
-A Windows XP/Vista/7/8 machine with a minimum of .NET Framework 4.8.
+A Windows 7 machine or later with a minimum of .NET Framework 4.8.
 
 ## Setup
 
