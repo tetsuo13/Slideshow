@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Restore dependencies
         run: dotnet restore
